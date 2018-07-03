@@ -1,0 +1,27 @@
+---
+
+- name: Create a new database with name 'keystone'
+  mysql_db:
+    name: keystone
+    state: present
+
+- name: Grant privileges to keystone user
+  mysql_user:
+    login_user: "keystone"
+    login_password: "KEYSTONE_DBPASS"
+    login_host: 'keystone'
+    append_privs: false
+    name: "keystone"
+    priv: '*.*:ALL,GRANT'
+    host: "controller"
+    state: present
+
+  mysql_user:
+    login_user: "keystone"
+    login_password: "KEYSTONE_DBPASS"
+    login_host: 'keystone'
+    append_privs: false
+    name: "keystone"
+    priv: '*.*:ALL,GRANT'
+    host: "%"
+    state: present

@@ -1,0 +1,42 @@
+---
+
+- name: install python dependencies
+  yum:
+    name: "{{ item }}"
+    state: latest
+
+  with_items:
+    - python-devel 
+    - gcc
+    
+
+- name: install pip packages
+  pip:
+    name: "{{ item }}"
+  
+  with_items:
+    - psutil
+    - flask
+    - uwsgi
+
+
+- name: Copy the python app
+  copy:
+    src: app
+    dest: /etc/nginx/
+    owner: root
+    group: root
+    mode: 0644
+
+
+- name: Copy the nginx config file
+  copy:
+    src: nginx.conf
+    dest: /etc/nginx/
+    owner: root
+    group: root
+    mode: 0644
+
+
+- name: set Selinux to permissive
+  command: setenforce Permissive

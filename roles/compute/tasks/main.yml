@@ -1,0 +1,51 @@
+---
+
+- name: add line to hosts in unix systems
+  lineinfile:
+    path: /etc/hosts
+    line: '192.168.33.13 controller'
+
+- name: add line to hosts in unix systems
+  lineinfile:
+    path: /etc/hosts
+    line: '192.168.33.14 compute1'
+
+
+- name: upgrade all packages
+  yum:
+    name: '*'
+    state: latest
+
+- name: install chrony
+  yum:
+    name: chrony
+    state: latest
+
+- name: Copy chrony.conf
+  copy:
+    src: chrony.conf
+    dest: /etc/
+
+- name: Start chrony service and enable
+  systemd: 
+    enabled=yes
+    state=started
+    name=chronyd
+
+- name: install opestack queens
+  yum:
+    name: centos-release-openstack-queens
+    state: latest
+
+- name: update packages
+  command: yum update -y
+
+- name: install python-openstack
+  yum:
+    name: python-openstackclient
+    state: latest
+
+- name: install openstack-selinux
+  yum:
+    name: openstack-selinux
+    state: latest

@@ -1,0 +1,117 @@
+---
+
+- name: add line to hosts in unix systems
+  lineinfile:
+    path: /etc/hosts
+    line: '192.168.33.13 controller'
+
+- name: add line to hosts in unix systems
+  lineinfile:
+    path: /etc/hosts
+    line: '192.168.33.14 compute1'
+
+
+- name: upgrade all packages
+  yum:
+    name: '*'
+    state: latest
+
+- name: install chrony
+  yum:
+    name: chrony
+    state: latest
+
+- name: Copy chrony.conf
+  copy:
+    src: chrony.conf
+    dest: /etc/
+
+- name: Start chrony service and enable
+  systemd: 
+    enabled=yes
+    state=started
+    name=chronyd
+
+- name: install opestack queens
+  yum:
+    name: centos-release-openstack-queens
+    state: latest
+
+- name: update packages
+  command: yum update -y
+
+- name: install python-openstack
+  yum:
+    name: python-openstackclient
+    state: latest
+
+- name: install openstack-selinux
+  yum:
+    name: openstack-selinux
+    state: latest
+
+
+- name: install MariaDB and message queue
+  yum:
+    name: "{{ item }}"
+    state: latest
+
+  with_items:
+    - mariadb
+    - mariadb-server
+    - python2-PyMySQL
+    - rabbitmq-server
+
+- name: Copy openstack.cnf
+  copy:
+    src: openstack.cnf
+    dest: /etc/my.cnf.d
+
+- name: Start mariadb service and enable
+  systemd:
+    enabled=yes
+    state=started 
+    name=mariadb
+
+- name: Start rabbitmq-server service and enable
+  systemd: 
+    enabled=yes
+    state=started
+    name=rabbitmq-server
+
+- name: add user rabbit
+  command: rabbitmqctl add_user openstack RABBIT_PASS
+
+- name: setting permissions user rabbit
+  command: rabbitmqctl set_permissions openstack ".*" ".*" ".*"
+
+- name: install Memcache and etcd
+  yum:
+    name: "{{ item }}"
+    state: latest
+
+  with_items:
+    - memcached
+    - python-memcached
+    - etcd
+
+- name: Copy memcached
+  copy:
+    src: memcached
+    dest: /etc/sysconfig/
+
+- name: Start memcached service and enable
+  systemd:
+    enabled=yes
+    state=started
+    name=memcached
+
+- name: etcd.conf
+  copy:
+    src: etcd.conf
+    dest: /etc/etcd/
+
+- name: Start etcd service and enable
+  systemd:
+    name=etcd
+    enabled=yes
